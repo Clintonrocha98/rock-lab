@@ -1,6 +1,6 @@
 # The tool never controls Docker; a Solution is reached at a URL
 
-Rock Lab does not start, stop, reset or inspect the user's Solution. The user runs the Solution any way they like and gives Rock Lab its base URL. Rock Lab only sends HTTP requests to it. No container of the tool mounts the Docker socket. We chose this over a worker that drives the host Docker daemon, although that option supports Faults, persistence checks and resource limits. Driving the daemon from a container needs a different socket permission scheme per platform, and bind mounts from a Solution can fail silently on WSL2 with Docker Desktop (see `docs/research/docker-socket-and-host-path.md`). The cost did not pay for itself in the MVP.
+Rock Lab does not start, stop, reset or inspect the user's Solution. The user runs the Solution any way they like and gives Rock Lab its base URL. Rock Lab only sends HTTP requests to it. No container of the tool mounts the Docker socket. We chose this over a worker that drives the host Docker daemon, although that option supports Faults, persistence checks and resource limits. Driving the daemon from a container needs a different socket permission scheme per platform, and bind mounts from a Solution can fail silently on WSL2 with Docker Desktop. The cost did not pay for itself in the MVP.
 
 ## Considered options
 
