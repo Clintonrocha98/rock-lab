@@ -1,0 +1,111 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.env.testing
+.phpactor.json
+.phpstorm.meta.php
+/.cache
+/.pint.result.cache
+/.rector.result.cache
+/.phpunit.cache
+.phpunit.result.cache
+/tests/.pest/*
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/public/fonts-manifest.dev.json
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+_ide_helper.php
+_ide_helper_models.php
+npm-debug.log
+yarn-error.log
+/.composer
+*.local
+docs.local/
+
+# === AI Agents ===
+
+# Laravel Boost (artefatos locais gerados pelo boost:install)
+boost.json
+.agents/
+opencode.json
+opencode.jsonc
+.junie
+.junie/
+# .mcp.json is committed on purpose (Boost MCP server wiring)
+
+# Generic AI Agents
+AGENTS.md
+GEMINI.md
+QWEN.md
+.output.txt
+.output/
+.agent/
+.agentignore
+.aiderignore
+.ai/*
+!.ai/guidelines/
+
+# Agent Skills (npx skills add) — skills de terceiros, reinstaláveis pelo manifest
+/agent/
+skills-lock.json
+
+# Claude Code
+.claude/
+CLAUDE.md
+
+# GitHub Copilot
+.github/copilot-instructions.md
+.github/git-commit-instructions.md
+
+# Cursor AI
+.cursorrules
+.cursor/
+.cursor.json
+.cursor-settings.yaml
+.cursorignore
+
+# Windsurf Editor
+.windsurf/
+.windsurfrc
+
+# Codex
+/.codex
+.codex
+
+# Cline AI
+.cline/
+.clinerules
+cline.json
+
+# Amp / Factory / Grok / Kiro / Pi
+/.amp
+/.factory
+/.grok
+/.kiro
+/.pi
+
+# Gemini
+.gemini/
+
+# Warp AI
+.warp/
+WARP.md
+
+# Crush AI
+.crush/
+CRUSH.md

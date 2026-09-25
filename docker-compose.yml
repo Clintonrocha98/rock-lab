@@ -1,0 +1,59 @@
+services:
+  rock-lab-db:
+    build:
+      dockerfile: docker/postgres.Dockerfile
+      context: .
+    image: postgres.local:18
+    container_name: rock-lab-db
+    restart: no
+    hostname: dev
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rock_lab
+      TZ: Etc/UTC
+      PGTZ: Etc/UTC
+    ports:
+      - '${FORWARD_DB_PORT:-5432}:5432'
+    volumes:
+      - rock-lab-db:/var/lib/postgresql
+      - ./docker/postgres/initdb:/docker-entrypoint-initdb.d:ro
+    networks:
+      - dev-rock-lab
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready --quiet --username=postgres --dbname=postgres || exit 1']
+      interval: 10s
+      retries: 5
+      timeout: 10s
+      start_period: 15s
+
+  rock-lab-redis:
+    build:
+      dockerfile: docker/redis.Dockerfile
+      context: .
+    image: redis.local:8
+    container_name: rock-lab-redis
+    restart: no
+    hostname: dev
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
+    networks:
+      - dev-rock-lab
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli --raw incr ping || exit 1']
+      interval: 10s
+      retries: 5
+      timeout: 10s
+      start_period: 15s
+
+volumes:
+  rock-lab-db:
+    name: rock-lab-db
+
+networks:
+  dev-rock-lab:
+    name: dev-rock-lab
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: dev-rock-lab
+      com.docker.network.bridge.host_binding_ipv4: '127.0.0.1'

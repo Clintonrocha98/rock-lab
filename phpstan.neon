@@ -1,0 +1,14 @@
+includes:
+    - phpstan.modules.php
+    - phpstan.ignore.neon
+
+parameters:
+    level: 7
+    checkImplicitMixed: true
+
+    # Result cache project-local, consolidado sob .cache/ (padroniza onde cada
+    # ferramenta grava seu cache). Por default o PHPStan usa sys_get_temp_dir().
+    tmpDir: .cache/phpstan
+
+    paths:
+        - app

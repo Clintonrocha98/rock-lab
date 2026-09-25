@@ -1,0 +1,107 @@
+name: Pest Tests
+
+on:
+  workflow_call:
+    inputs:
+      PHP_VERSION:
+        required: true
+        type: string
+      PHP_EXTENSIONS:
+        required: true
+        type: string
+      PHP_INI_PROPERTIES:
+        required: true
+        type: string
+      COMPOSER_FLAGS:
+        required: true
+        type: string
+      CACHE_KEY:
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  tests:
+    name: Run
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-tests
+      cancel-in-progress: true
+
+    services:
+      postgres:
+        image: postgres:18-alpine # zizmor: ignore[unpinned-images] — ephemeral CI test DB
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_rock_lab
+        ports:
+          - 5432/tcp
+        options: >-
+          --health-cmd "pg_isready -U postgres -d test_rock_lab"
+          --health-interval 1s
+          --health-timeout 2s
+          --health-retries 30
+          --health-start-period 0s
+
+      redis:
+        image: redis:8-alpine # zizmor: ignore[unpinned-images] — ephemeral CI cache
+        ports:
+          - 6379/tcp
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 1s
+          --health-timeout 2s
+          --health-retries 30
+          --health-start-period 0s
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: ${{ inputs.PHP_VERSION }}
+          extensions: ${{ inputs.PHP_EXTENSIONS }}
+          ini-values: ${{ inputs.PHP_INI_PROPERTIES }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Setup Problem Matches
+        shell: bash
+        env:
+          RUNNER_TOOL_CACHE: ${{ runner.tool_cache }}
+        run: |
+          for matcher in php phpunit; do
+            file="${RUNNER_TOOL_CACHE}/${matcher}.json"
+            if [ -f "${file}" ]; then
+              echo "::add-matcher::${file}"
+            fi
+          done
+
+      - name: Install composer dependencies
+        uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
+        with:
+          composer-options: ${{ inputs.COMPOSER_FLAGS }}
+          custom-cache-key: ${{ inputs.CACHE_KEY }}
+
+      - name: Prepare test env
+        run: |
+          composer run-script post-root-package-install
+          composer run-script key:generate
+
+      - name: Run Tests
+        env:
+          DB_PORT: ${{ job.services.postgres.ports['5432'] }}
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+        run: |
+          php artisan test --ci --parallel
